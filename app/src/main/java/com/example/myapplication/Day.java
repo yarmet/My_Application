@@ -1,20 +1,33 @@
 package com.example.myapplication;
 
-public class Day {
-    private String[] exercises;
-    private DayType type;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
-    public Day(DayType type2, String... exercises2) {
-        this.type = type2;
+public class Day {
+
+    private String[] exercises;
+    private boolean workingDay;
+
+
+    public Day(boolean workingDay, String... exercises2) {
+        this.workingDay = workingDay;
         this.exercises = exercises2;
     }
 
-    public DayType getType() {
-        return this.type;
+
+    public String getExercisesAsText(boolean today) {
+        return today ? makeTodaySchedule() : makeSchedule();
     }
 
-    public String[] getExercises() {
-        return this.exercises;
+
+    private String makeTodaySchedule() {
+        return workingDay ? Arrays.stream(exercises).map(" -> "::concat).collect(Collectors.joining("\n")) : " -> ОТДЫХ";
     }
+
+
+    private String makeSchedule() {
+        return workingDay ? String.join("\n", exercises) : "ОТДЫХ";
+    }
+
 
 }

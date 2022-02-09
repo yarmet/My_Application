@@ -9,18 +9,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        List<String> strings = fillDays();
+        List<String> strings = this.fillDays();
 
         ListView listView = findViewById(R.id.listParent);
 
@@ -37,19 +36,20 @@ public class MainActivity extends AppCompatActivity {
         List<String> result = new ArrayList<>();
 
         for (int i = 0; i < 10; i++) {
-            int position = this.getPosition(((int) offset) + i);
+            int position = this.getDayInSchedulePosition(((int) offset) + i);
             Day currDay = Schedule.DAYS.get(position);
 
             String dayName = this.getDayName(i);
             LocalDate localDate = now.plusDays(i);
 
-            StringBuilder header = new StringBuilder()
+            String header = new StringBuilder()
                     .append(dayName)
                     .append(localDate)
                     .append(" ")
-                    .append(CustomDaysOfWeek.get(localDate.getDayOfWeek().getValue()));
+                    .append(DayOfWeekRussianNames.get(localDate.getDayOfWeek().getValue()))
+                    .toString();
 
-            String s = convertDayToPrintDay(header.toString(), currDay, i == 0);
+            String s = this.convertDayToPrintDay(header, currDay, i == 0);
             result.add(s);
         }
         return result;
@@ -73,30 +73,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private String convertDayToPrintDay(String name, Day day, boolean today) {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(name);
-        stringBuilder.append("\n");
 
-        if (today) {
-            if (day.getType() == DayType.ON) {
-                String collect = Arrays.stream(day.getExercises()).map(" -> "::concat).collect(Collectors.joining("\n"));
-                stringBuilder.append(collect);
-            } else {
-                stringBuilder.append(" -> ОТДЫХ");
-            }
-        } else {
-            if (day.getType() == DayType.ON) {
-                stringBuilder.append(String.join("\n", day.getExercises()));
-            } else {
-                stringBuilder.append("ОТДЫХ");
-            }
-        }
-        return stringBuilder.toString();
+    private String convertDayToPrintDay(String name, Day day, boolean today) {
+        return new StringBuilder()
+                .append(name)
+                .append("\n")
+                .append(day.getExercisesAsText(today))
+                .toString();
     }
 
 
-    private int getPosition(int val) {
+    private int getDayInSchedulePosition(int val) {
         if (val > 0) {
             return val % 10;
         }
